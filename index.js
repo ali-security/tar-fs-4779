@@ -266,7 +266,7 @@ exports.extract = function (cwd, opts) {
         var srcpath = path.join(cwd, path.join('/', header.linkname))
 
         xfs.realpath(srcpath, function (err, dst) {
-          if (err || !dst.startsWith(path.resolve(cwd))) return next(new Error(name + ' is not a valid hardlink'))
+          if (err || !inCwd(dst, cwd)) return next(new Error(name + ' is not a valid hardlink'))
 
           xfs.link(dst, name, function (err) {
             if (err && err.code === 'EPERM' && opts.hardlinkAsFilesFallback) {
@@ -348,4 +348,9 @@ function mkdirfix (name, opts, cb) {
       cb(err)
     }
   })
+}
+
+function inCwd (dst, cwd) {
+  cwd = path.resolve(cwd)
+  return cwd === dst || dst.startsWith(cwd + path.sep)
 }
